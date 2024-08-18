@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- jQuery --> 
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superapp Kenotariatan</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .modal-content {
+            max-height: 300px; 
+            overflow-y: auto; 
+        }
+        #results {
+            max-height: 125px;
+            overflow-y: auto; 
+        }
+        .sidebar {
+                background-color: #1c4c98;
+                color: white;
+                min-height: 100vh;
+                padding: 20px;
+                position: fixed;
+                width: 240px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar h3 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .sidebar ul {
+            padding: 0;
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+        .sidebar ul li a {
+            color: #adb5bd;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .sidebar ul li a:hover {
+            color: #fff;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .stats-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .stats-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+        }
+        .task-text {
+                flex-grow: 1;
+            }
+        .completed {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+        .btn-group .btn {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Notaris & PPAT Havis Akbar</h3>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">Laporan</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">Dokumen</a>
+            </li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-box" data-toggle="modal" data-target="#templateModal" data-category="TIMPLIT">
+                    <h2 id="TIMPLIT">okegas</h2>
+                    <p class="description">Template</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box" data-toggle="modal" data-target="#templateModal" data-category="AJB">
+                    <h2 id="AJB">0</h2>
+                    <p class="description">Persetujuan</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box" data-toggle="modal" data-target="#templateModal" data-category="APHB">
+                    <h2 id="APHB">0</h2>
+                    <p class="description">Proses</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-box" data-toggle="modal" data-target="#templateModal" data-category="PT">
+                    <h2 id="PT">0</h2>
+                    <p class="description">Selesai</p>
+                </div>
+            </div>
+        </div>
+                                  
+  <!-- Modal -->
+      <div class="modal fade" id="templateModal" tabindex="-1" role="dialog" aria-labelledby="templateModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="templateModalLabel">Draft Dokumen</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="documentList" class="list-group"></ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+<!-- Repeat similar modal structure for other stats-boxes -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Status</h5>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card search-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Cari Dokumen</h5>
+                        <form id="searchForm">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchQuery" placeholder="Masukkan keyword">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Cari</button>
+                        </form>
+                        <div id="results" class="mt-4 px-20"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">List Tugas</h5>
+                        <form id="todoForm">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="todoTask" placeholder="Tambah tugas...">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Tambah</button>
+                        </form>
+                        <ul id="todoList" class="list-group mt-3">
+                            <!-- To-Do items will be appended here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        $(document).ready(function() {
+            loadChart();
+            fetchTodoList();
+    
+            $('.stats-box').on('click', function() {
+                var selectedCategory = $(this).data('category');
+                $('#documentList').empty();
+                $.ajax({
+                    url: "/category-documents",
+                    type: "GET",
+                    data: { selectedCategory: selectedCategory },
+                    success: function(documents) {
+                        if (documents.length > 0) {
+                            documents.forEach(function(doc) {
+                                var listItem = '<li class="list-group-item d-flex justify-content-between align-items-center">' +
+                                               doc[0] +
+                                               '<a href="/download?path=' + encodeURIComponent(doc[1]) + '" class="btn btn-sm btn-primary">Download</a>' +
+                                               '</li>';
+                                $('#documentList').append(listItem);
+                            });
+                        } else {
+                            $('#documentList').append('<li class="list-group-item">No documents found.</li>');
+                        }
+                    },
+                    error: function() {
+                        alert("Error loading documents.");
+                    }
+                });
+            });
+    
+            document.getElementById('searchForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                let query = document.getElementById('searchQuery').value;
+                fetch(`/search?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let resultsDiv = document.getElementById('results');
+                        resultsDiv.innerHTML = '';
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<p>No documents found</p>';
+                        } else {
+                            let list = document.createElement('ul');
+                            list.classList.add('list-group');
+                            data.forEach(item => {
+                                let listItem = document.createElement('li');
+                                listItem.classList.add('list-group-item');
+                                
+                                let link = document.createElement('a');
+                                link.href = `/open_file?path=${encodeURIComponent(item[1])}`;
+                                link.textContent = `${item[0]} - ${item[2]}`;
+                                link.target = '_blank';
+    
+                                listItem.appendChild(link);
+                                list.appendChild(listItem);
+                            });
+                            resultsDiv.appendChild(list);
+                        }
+                    });
+            });
+    
+            $('#todoForm').on('submit', function(e) {
+                e.preventDefault();
+                var task = $('#todoTask').val();
+                $.ajax({
+                    url: '/todos',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ task: task }),
+                    success: function(newTodo) {
+                        $('#todoTask').val('');
+                        appendTodoItem(newTodo);
+                    }
+                });
+            });
+    
+            function appendTodoItem(todo) {
+                var listItem = $('<li class="list-group-item d-flex justify-content-between align-items-center">');
+                listItem.text(todo.task);
+                listItem.toggleClass('completed', todo.completed);
+    
+                var checkBox = $('<input type="checkbox" class="mr-3">').prop('checked', todo.completed);
+                checkBox.on('change', function() {
+                    $.ajax({
+                        url: '/todos/' + todo.id,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ completed: this.checked }),
+                        success: function() {
+                            listItem.toggleClass('completed', checkBox.is(':checked'));
+                        }
+                    });
+                });
+    
+                var deleteButton = $('<button class="btn btn-md">✖</button>');
+                deleteButton.on('click', function() {
+                    $.ajax({
+                        url: '/todos/' + todo.id,
+                        type: 'DELETE',
+                        success: function() {
+                            listItem.remove();
+                        }
+                    });
+                });
+    
+                listItem.prepend(checkBox);
+                listItem.append(deleteButton);
+                $('#todoList').append(listItem);
+            }
+    
+            function fetchTodoList() {
+                $.ajax({
+                    url: '/todos',
+                    type: 'GET',
+                    success: function(todos) {
+                        $('#todoList').empty();
+                        todos.forEach(function(todo) {
+                            appendTodoItem(todo);
+                        });
+                    }
+                });
+            }
+    
+            function loadChart() {
+                $.ajax({
+                    url: '/category-data',
+                    type: 'GET',
+                    success: function(data) {
+                        var ctx = document.getElementById('categoryChart').getContext('2d');
+                        var chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(data),
+                                datasets: [{
+                                    label: '2024',
+                                    data: Object.values(data),
+                                    backgroundColor: 'rgba(54, 162, 235)'
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+    
+                        // Update the counts on the boxes
+                        Object.keys(data).forEach(function(category) {
+                            $('#' + category).text(data[category]);
+                        });
+                    }
+                });
+            }
+        });
+        
+    </script>
+        
+</body>
+</html>
